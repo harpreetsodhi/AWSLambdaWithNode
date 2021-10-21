@@ -4,7 +4,12 @@ const serverless = require('serverless-http');
 const app = express();
 app.use(express.json());
 
-var fruits = [
+app.use(function(req, res, next) {
+  res.setHeader("Content-Type", "application/json");
+  next();
+});
+
+let fruits = [
   {
     "id":"1",
     "fruit":"Apple"
@@ -24,17 +29,18 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/fruits', (req, res) => {
-  res.json({fruits});
+  res.send(JSON.stringify(fruits, null, 4));
 });
 
-app.get('/api/fruits/:fruit', (req, res) => {
-  res.json({"fruit": fruits.filter(item => item.id === req.params.fruit)});
+app.get('/api/fruit/:id', (req, res) => {
+  const index = fruits.findIndex(item => item.id === req.params["id"]);
+  res.send(JSON.stringify(fruits[index], null, 4));
 });
 
-app.post('/api/fruit', (req, res) => {
-  let fruit = JSON.parse(req.body)
+app.post('/api/fruits', (req, res) => {
+  let fruit = req.body;
   fruits.push(fruit);
-  res.json({fruits});
+  res.send(JSON.stringify(fruits, null, 4));
 });
 
 app.listen(3000, () => console.log(`Listening on: 3000`));
